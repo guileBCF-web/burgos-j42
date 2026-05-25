@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Burgos CF — Simulador Jornada 42</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0d0f;
+  --bg2: #16161a;
+  --bg3: #1e1e24;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #f0f0ee;
+  --muted: #8a8a94;
+  --accent: #7c6af7;
+  --accent2: #a99cf9;
+  --green: #2dbd8f;
+  --green-bg: rgba(45,189,143,0.12);
+  --amber: #f0a32c;
+  --amber-bg: rgba(240,163,44,0.12);
+  --red: #e05252;
+  --red-bg: rgba(224,82,82,0.12);
+  --burgos: #7c6af7;
+  --burgos-bg: rgba(124,106,247,0.1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'DM Sans',sans-serif;
+  font-size:15px;
+  line-height:1.6;
+  min-height:100vh;
+}
+
+/* HEADER */
+.hero{
+  padding:3rem 1.5rem 2rem;
+  max-width:700px;
+  margin:0 auto;
+  text-align:center;
+}
+.badge{
+  display:inline-block;
+  font-family:'Syne',sans-serif;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--accent2);
+  background:var(--burgos-bg);
+  border:0.5px solid var(--accent);
+  border-radius:20px;
+  padding:4px 14px;
+  margin-bottom:1.25rem;
+}
+h1{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(2rem,6vw,3.2rem);
+  font-weight:800;
+  line-height:1.1;
+  margin-bottom:.75rem;
+  background:linear-gradient(135deg,#f0f0ee 0%,#a99cf9 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.subtitle{
+  color:var(--muted);
+  font-size:14px;
+  max-width:480px;
+  margin:0 auto;
+}
+
+/* MAIN */
+.main{
+  max-width:700px;
+  margin:0 auto;
+  padding:0 1.25rem 4rem;
+}
+
+/* SECTION TITLE */
+.section-title{
+  font-family:'Syne',sans-serif;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:.75rem;
+  margin-top:2rem;
+}
+
+/* CURRENT STANDINGS */
+.standings-pre{
+  background:var(--bg2);
+  border:0.5px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+}
+.standings-pre table{width:100%;border-collapse:collapse}
+.standings-pre th{
+  font-size:11px;
+  font-weight:500;
+  color:var(--muted);
+  text-align:center;
+  padding:10px 8px;
+  border-bottom:0.5px solid var(--border);
+}
+.standings-pre th:first-child{text-align:left;padding-left:16px}
+.standings-pre td{
+  padding:10px 8px;
+  text-align:center;
+  font-size:13px;
+  border-bottom:0.5px solid var(--border);
+}
+.standings-pre tr:last-child td{border-bottom:none}
+.standings-pre td:first-child{text-align:left;padding-left:16px}
+.row-burgos{background:var(--burgos-bg)!important}
+.pos-num{color:var(--muted);font-size:12px;min-width:20px;display:inline-block}
+.team-name-cell{font-weight:500}
+.pts-pill{
+  display:inline-block;
+  padding:2px 10px;
+  border-radius:20px;
+  font-weight:600;
+  font-size:13px;
+}
+.pts-playoff{background:var(--green-bg);color:var(--green)}
+.pts-out{background:rgba(255,255,255,0.05);color:var(--muted)}
+
+/* MATCH SELECTOR */
+.matches-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+@media(max-width:480px){.matches-grid{grid-template-columns:1fr}}
+.match-card{
+  background:var(--bg2);
+  border:0.5px solid var(--border);
+  border-radius:14px;
+  padding:14px;
+  transition:border-color .2s;
+}
+.match-card.burgos-card{border-color:rgba(124,106,247,0.4)}
+.match-card-label{
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:6px;
+}
+.match-card-label.direct{color:var(--amber)}
+.match-card-title{
+  font-family:'Syne',sans-serif;
+  font-size:13px;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:10px;
+  line-height:1.3;
+}
+.match-card-title.burgos-title{color:var(--accent2)}
+.btn-group{display:flex;gap:6px}
+.btn{
+  flex:1;
+  font-family:'DM Sans',sans-serif;
+  font-size:12px;
+  font-weight:500;
+  padding:6px 4px;
+  border-radius:8px;
+  border:0.5px solid var(--border2);
+  background:transparent;
+  color:var(--muted);
+  cursor:pointer;
+  transition:all .15s;
+}
+.btn:hover{background:var(--bg3);color:var(--text)}
+.btn.sel-g{background:var(--green-bg);color:var(--green);border-color:var(--green)}
+.btn.sel-e{background:var(--amber-bg);color:var(--amber);border-color:var(--amber)}
+.btn.sel-p{background:var(--red-bg);color:var(--red);border-color:var(--red)}
+
+/* RESULTS TABLE */
+.results-table{
+  background:var(--bg2);
+  border:0.5px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+}
+.results-table table{width:100%;border-collapse:collapse}
+.results-table th{
+  font-size:11px;
+  font-weight:500;
+  color:var(--muted);
+  text-align:center;
+  padding:10px 6px;
+  border-bottom:0.5px solid var(--border);
+}
+.results-table th:first-child{text-align:left;padding-left:14px}
+.results-table td{
+  padding:10px 6px;
+  text-align:center;
+  font-size:13px;
+  border-bottom:0.5px solid var(--border);
+}
+.results-table tr:last-child td{border-bottom:none}
+.results-table td:first-child{text-align:left;padding-left:14px}
+.row-hl{background:var(--burgos-bg)}
+.delta-g{color:var(--green);font-weight:600}
+.delta-e{color:var(--amber);font-weight:600}
+.delta-p{color:var(--muted)}
+.tag{
+  display:inline-block;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  padding:3px 8px;
+  border-radius:20px;
+}
+.tag-playoff{background:var(--green-bg);color:var(--green)}
+.tag-out{background:rgba(255,255,255,0.05);color:var(--muted)}
+.tag-asc{background:rgba(124,106,247,0.2);color:var(--accent2)}
+
+/* SCENARIO BOX */
+.scenario-box{
+  background:var(--bg2);
+  border:0.5px solid var(--border);
+  border-radius:16px;
+  padding:18px 20px;
+  margin-top:10px;
+}
+.scenario-icon{font-size:24px;margin-bottom:8px}
+.scenario-title{
+  font-family:'Syne',sans-serif;
+  font-size:16px;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:6px;
+}
+.scenario-desc{
+  font-size:13px;
+  color:var(--muted);
+  line-height:1.6;
+}
+
+/* LEGEND */
+.legend{
+  display:flex;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+.leg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.leg-dot{width:8px;height:8px;border-radius:50%}
+
+/* FOOTER */
+.footer{
+  text-align:center;
+  padding:2rem 1.5rem;
+  color:var(--muted);
+  font-size:12px;
+  border-top:0.5px solid var(--border);
+  margin-top:2rem;
+}
+.footer span{color:var(--accent2)}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="badge">Segunda División · Jornada 42</div>
+  <h1>¿Dónde acaba<br>el Burgos CF?</h1>
+  <p class="subtitle">Simula los resultados de la última jornada y descubre si el Burgos CF entra en el playoff de ascenso.</p>
+</div>
+
+<div class="main">
+
+  <div class="section-title">Clasificación antes de la jornada 42</div>
+  <div class="standings-pre">
+    <table>
+      <thead>
+        <tr>
+          <th>Equipo</th>
+          <th>Pts</th>
+          <th>DG</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="pos-num">3º</span> <span class="team-name-cell">Almería</span></td><td><span class="pts-pill pts-playoff">71</span></td><td>+18</td></tr>
+        <tr><td><span class="pos-num">4º</span> <span class="team-name-cell">Málaga</span></td><td><span class="pts-pill pts-playoff">70</span></td><td>+21</td></tr>
+        <tr><td><span class="pos-num">5º</span> <span class="team-name-cell">Las Palmas</span></td><td><span class="pts-pill pts-playoff">70</span></td><td>+16</td></tr>
+        <tr><td><span class="pos-num">6º</span> <span class="team-name-cell">Castellón</span></td><td><span class="pts-pill pts-playoff">69</span></td><td>+18</td></tr>
+        <tr class="row-burgos"><td><span class="pos-num">7º</span> <span class="team-name-cell" style="color:var(--accent2)">⚡ Burgos CF</span></td><td><span class="pts-pill pts-playoff">69</span></td><td>+14</td></tr>
+        <tr><td><span class="pos-num">8º</span> <span class="team-name-cell">Eibar</span></td><td><span class="pts-pill pts-out">67</span></td><td>+13</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title" style="margin-top:2rem">Elige los resultados de la jornada 42</div>
+  <div class="matches-grid" id="matchGrid"></div>
+
+  <div class="section-title" style="margin-top:2rem">Clasificación resultante</div>
+  <div class="legend">
+    <div class="leg"><div class="leg-dot" style="background:var(--green)"></div>En el playoff</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--muted)"></div>Fuera del playoff</div>
+  </div>
+  <div class="results-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Equipo</th>
+          <th>Pts</th>
+          <th>J42</th>
+          <th>Total</th>
+          <th>Resultado</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="scenario-box" id="scenarioBox">
+    <div class="scenario-icon">🔵</div>
+    <div class="scenario-title" id="scenarioTitle">Selecciona los resultados</div>
+    <div class="scenario-desc" id="scenarioDesc">Elige el resultado del Burgos CF y de los partidos clave para ver qué ocurre en la clasificación final.</div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Simulador no oficial · Datos actualizados a jornada 41 · <span>Segunda División 2025-26</span>
+</div>
+
+<script>
+const BASE = [
+  {name:"Almería",    pts:71, gd:18},
+  {name:"Málaga",     pts:70, gd:21},
+  {name:"Las Palmas", pts:70, gd:16},
+  {name:"Castellón",  pts:69, gd:18},
+  {name:"Burgos CF",  pts:69, gd:14},
+  {name:"Eibar",      pts:67, gd:13},
+];
+
+const MATCHES = [
+  {id:"burgos",    local:"Burgos CF",  visit:"Andorra",    label:"Burgos CF vs Andorra",       isBurgos:true,  isDirect:false, note:"El partido de Burgos"},
+  {id:"caseibar",  local:"Castellón",  visit:"Eibar",      label:"Castellón vs Eibar",          isBurgos:false, isDirect:true,  note:"Duelo directo ⚡"},
+  {id:"almeria",   local:"Almería",    visit:"Valladolid", label:"Almería vs Valladolid",       isBurgos:false, isDirect:false, note:""},
+  {id:"malaga",    local:"Málaga",     visit:"Zaragoza",   label:"Málaga vs Zaragoza",          isBurgos:false, isDirect:false, note:""},
+  {id:"laspalmas", local:"Deportivo",  visit:"Las Palmas", label:"Deportivo vs Las Palmas",     isBurgos:false, isDirect:false, note:"Las Palmas de visitante"},
+];
+
+const state = {burgos:"", caseibar:"", almeria:"", malaga:"", laspalmas:""};
+
+function ptsFromResult(res, isLocal) {
+  if(!res) return 0;
+  if(res==="G") return isLocal ? 3 : 0;
+  if(res==="E") return 1;
+  if(res==="P") return isLocal ? 0 : 3;
+  return 0;
+}
+
+function calcStandings() {
+  const s = BASE.map(t => ({...t}));
+  const find = n => s.find(t => t.name === n);
+
+  if(state.burgos)    find("Burgos CF").pts  += ptsFromResult(state.burgos, true);
+  if(state.caseibar) {
+    find("Castellón").pts += ptsFromResult(state.caseibar, true);
+    find("Eibar").pts     += ptsFromResult(state.caseibar, false);
+  }
+  if(state.almeria)   find("Almería").pts    += ptsFromResult(state.almeria, true);
+  if(state.malaga)    find("Málaga").pts     += ptsFromResult(state.malaga, true);
+  if(state.laspalmas) find("Las Palmas").pts += ptsFromResult(state.laspalmas, false);
+
+  s.sort((a,b) => b.pts - a.pts || b.gd - a.gd);
+  return s;
+}
+
+function getTeamResult(name) {
+  if(name==="Burgos CF")  return state.burgos;
+  if(name==="Castellón")  return state.caseibar ? (state.caseibar==="G"?"G":state.caseibar==="E"?"E":"P") : "";
+  if(name==="Eibar")      return state.caseibar ? (state.caseibar==="G"?"P":state.caseibar==="E"?"E":"G") : "";
+  if(name==="Almería")    return state.almeria;
+  if(name==="Málaga")     return state.malaga;
+  if(name==="Las Palmas") return state.laspalmas;
+  return "";
+}
+
+function render() {
+  const sorted = calcStandings();
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = "";
+
+  sorted.forEach((t, i) => {
+    const realPos = i + 3;
+    const inPlayoff = realPos <= 6;
+    const isBurgos = t.name === "Burgos CF";
+    const res = getTeamResult(t.name);
+    const basePts = BASE.find(b => b.name === t.name).pts;
+
+    let deltaHtml = '<span style="color:var(--muted)">—</span>';
+    if(res==="G") deltaHtml = '<span class="delta-g">+3</span>';
+    else if(res==="E") deltaHtml = '<span class="delta-e">+1</span>';
+    else if(res==="P") deltaHtml = '<span class="delta-p">+0</span>';
+
+    let tagHtml = "";
+    if(realPos <= 2)     tagHtml = '<span class="tag tag-asc">Ascenso directo</span>';
+    else if(inPlayoff)   tagHtml = `<span class="tag tag-playoff">Playoff ${realPos}º</span>`;
+    else                 tagHtml = `<span class="tag tag-out">${realPos}º</span>`;
+
+    const ptsClass = inPlayoff ? "pts-playoff" : "pts-out";
+    const tr = document.createElement("tr");
+    if(isBurgos) tr.className = "row-hl";
+    tr.innerHTML = `
+      <td><span style="color:var(--muted);font-size:11px;margin-right:6px">${realPos}º</span><span style="font-weight:500${isBurgos?';color:var(--accent2)':''}">${t.name}${isBurgos?' ⚡':''}</span></td>
+      <td style="color:var(--muted);font-size:12px">${basePts}</td>
+      <td>${deltaHtml}</td>
+      <td><span class="pts-pill ${ptsClass}">${t.pts}</span></td>
+      <td>${tagHtml}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  renderScenario(sorted);
+}
+
+function renderScenario(sorted) {
+  const box = document.getElementById("scenarioBox");
+  const title = document.getElementById("scenarioTitle");
+  const desc = document.getElementById("scenarioDesc");
+  const icon = box.querySelector(".scenario-icon");
+
+  if(!state.burgos) {
+    icon.textContent = "🔵";
+    title.textContent = "Selecciona el resultado del Burgos";
+    desc.textContent = "Elige el resultado de los partidos para ver qué posición final ocupa el Burgos CF.";
+    return;
+  }
+
+  const burgosEntry = sorted.find(t => t.name === "Burgos CF");
+  const pos = sorted.indexOf(burgosEntry) + 3;
+  const inPlayoff = pos <= 6;
+  const allSet = Object.values(state).every(v => v !== "");
+
+  if(inPlayoff) {
+    icon.textContent = "✅";
+    title.style.color = "var(--green)";
+    title.textContent = `Burgos CF en el playoff — ${pos}º clasificado`;
+    if(!allSet) {
+      desc.textContent = `Con los resultados seleccionados, Burgos CF entraría en el playoff de ascenso. Selecciona todos los partidos para ver el análisis completo.`;
+    } else {
+      const above = sorted[sorted.indexOf(burgosEntry)-1];
+      const tieNote = above && above.pts === burgosEntry.pts
+        ? ` ⚠️ Empate a puntos con ${above.name}: el desempate definitivo se resuelve por enfrentamientos directos.`
+        : " La posición está clara sin necesidad de aplicar criterios de desempate adicionales.";
+      desc.textContent = `Con ${burgosEntry.pts} puntos, Burgos CF se clasifica para el playoff de ascenso como ${pos}º.${tieNote}`;
+    }
+  } else {
+    icon.textContent = "❌";
+    title.style.color = "var(--red)";
+    title.textContent = `Burgos CF fuera del playoff — ${pos}º clasificado`;
+    const sixthTeam = sorted[3];
+    desc.textContent = `Con ${burgosEntry.pts} puntos, Burgos CF se queda en ${pos}ª posición, fuera del playoff. El 6º clasificado sería ${sixthTeam.name} con ${sixthTeam.pts} puntos.`;
+  }
+}
+
+function setResult(matchId, res) {
+  state[matchId] = res;
+  document.querySelectorAll(`[data-match="${matchId}"]`).forEach(btn => {
+    btn.className = "btn";
+    if(btn.dataset.result === res) {
+      btn.className = res==="G" ? "btn sel-g" : res==="E" ? "btn sel-e" : "btn sel-p";
+    }
+  });
+  render();
+}
+
+// Build match cards
+const grid = document.getElementById("matchGrid");
+MATCHES.forEach(m => {
+  const card = document.createElement("div");
+  card.className = "match-card" + (m.isBurgos ? " burgos-card" : "");
+
+  const labelClass = m.isDirect ? "match-card-label direct" : "match-card-label";
+  const labelText = m.note || "Jornada 42";
+  const titleClass = m.isBurgos ? "match-card-title burgos-title" : "match-card-title";
+
+  const gLabel = m.id==="caseibar" ? "Castellón" : m.local==="Deportivo" ? "Depor" : m.local;
+  const pLabel = m.id==="caseibar" ? "Eibar" : m.visit==="Las Palmas" ? "L.Palmas" : m.visit==="Valladolid" ? "Vallad." : m.visit;
+
+  card.innerHTML = `
+    <div class="${labelClass}">${labelText}</div>
+    <div class="${titleClass}">${m.label}</div>
+    <div class="btn-group">
+      <button class="btn" data-match="${m.id}" data-result="G" onclick="setResult('${m.id}','G')">1 ${gLabel}</button>
+      <button class="btn" data-match="${m.id}" data-result="E" onclick="setResult('${m.id}','E')">Empate</button>
+      <button class="btn" data-match="${m.id}" data-result="P" onclick="setResult('${m.id}','P')">2 ${pLabel}</button>
+    </div>
+  `;
+  grid.appendChild(card);
+});
+
+render();
+</script>
+</body>
+</html>
