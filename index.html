@@ -185,11 +185,11 @@ const MATCHES = [
 
 const state = {burgos:"", caseibar:"", almeria:"", malaga:"", laspalmas:""};
 
-function pts3(res, isLocal) {
+function pts3(res) {
   if(!res) return 0;
-  if(res==="G") return isLocal ? 3 : 0;
+  if(res==="G") return 3;
   if(res==="E") return 1;
-  return isLocal ? 0 : 3;
+  return 0;
 }
 
 function getJ42res(name) {
@@ -202,15 +202,10 @@ function getJ42res(name) {
   return "";
 }
 
-function isLocal(name) {
-  // Las Palmas juega en Depor (visitante), Eibar visita a Castellón
-  if(name==="Las Palmas" || name==="Eibar") return false;
-  return true;
-}
 
 function calcFinalPts() {
   const fp = {};
-  TEAMS.forEach(t => { fp[t] = BASE[t].pts + pts3(getJ42res(t), isLocal(t)); });
+  TEAMS.forEach(t => { fp[t] = BASE[t].pts + pts3(getJ42res(t)); });
   return fp;
 }
 
