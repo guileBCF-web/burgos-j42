@@ -198,7 +198,7 @@ function getJ42res(name) {
   if(name==="Eibar")      return state.caseibar ? (state.caseibar==="G"?"P":state.caseibar==="E"?"E":"G") : "";
   if(name==="Almería")    return state.almeria;
   if(name==="Málaga")     return state.malaga;
-  if(name==="Las Palmas") return state.laspalmas;
+  if(name==="Las Palmas") return state.laspalmas ? (state.laspalmas==="G"?"P":state.laspalmas==="E"?"E":"G") : "";
   return "";
 }
 
